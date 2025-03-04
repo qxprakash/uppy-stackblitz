@@ -1279,7 +1279,7 @@ export default class Dashboard<M extends Meta, B extends Body> extends UIPlugin<
 
   #addSpecifiedPluginsFromOptions = () => {
     const { plugins } = this.opts
-
+    this.uppy.log(`logging plugins object destructured form this.opts --> ${plugins}`, 'warning')
     plugins.forEach((pluginID) => {
       const plugin = this.uppy.getPlugin(pluginID)
       if (plugin) {

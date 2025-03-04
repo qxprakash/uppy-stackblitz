@@ -91,6 +91,8 @@ export default class Form<M extends Meta, B extends Body> extends BasePlugin<
     }
   }
 
+
+
   handleFormSubmit(ev: Event): void {
     if (this.opts.triggerUploadOnSubmit) {
       ev.preventDefault()
@@ -128,6 +130,8 @@ export default class Form<M extends Meta, B extends Body> extends BasePlugin<
   }
 
   addResultToForm(result: Result<M, B>): void {
+    // eslint-disable-next-line no-console
+    console.log("hello from uppy index.ts")
     this.uppy.log('[Form] Adding result to the original form:')
     this.uppy.log(result)
 

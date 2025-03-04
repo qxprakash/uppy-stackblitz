@@ -176,6 +176,8 @@ class Restricter<M extends Meta, B extends Body> {
   }
 
   validateMinNumberOfFiles(files: State<M, B>['files']): void {
+    console.log("hello from uppy Restricter.ts <---->")
+    console.log("files in validateMinNumberOfFiles: ", files)
     const { minNumberOfFiles } = this.getOpts().restrictions
     if (minNumberOfFiles && Object.keys(files).length < minNumberOfFiles) {
       throw new RestrictionError(

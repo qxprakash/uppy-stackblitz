@@ -8959,7 +8959,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uppy/compressor@workspace:^, @uppy/compressor@workspace:packages/@uppy/compressor":
+"@uppy/compressor@workspace:*, @uppy/compressor@workspace:^, @uppy/compressor@workspace:packages/@uppy/compressor":
   version: 0.0.0-use.local
   resolution: "@uppy/compressor@workspace:packages/@uppy/compressor"
   dependencies:
@@ -9315,7 +9315,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uppy/screen-capture@workspace:^, @uppy/screen-capture@workspace:packages/@uppy/screen-capture":
+"@uppy/screen-capture@workspace:*, @uppy/screen-capture@workspace:^, @uppy/screen-capture@workspace:packages/@uppy/screen-capture":
   version: 0.0.0-use.local
   resolution: "@uppy/screen-capture@workspace:packages/@uppy/screen-capture"
   dependencies:
@@ -30732,6 +30732,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vite-starter@workspace:examples/vite-starter":
+  version: 0.0.0-use.local
+  resolution: "vite-starter@workspace:examples/vite-starter"
+  dependencies:
+    "@uppy/aws-s3": "workspace:*"
+    "@uppy/compressor": "workspace:*"
+    "@uppy/core": "workspace:*"
+    "@uppy/dashboard": "workspace:*"
+    "@uppy/drop-target": "workspace:*"
+    "@uppy/form": "workspace:*"
+    "@uppy/golden-retriever": "workspace:*"
+    "@uppy/image-editor": "workspace:*"
+    "@uppy/remote-sources": "workspace:*"
+    "@uppy/screen-capture": "workspace:*"
+    "@uppy/transloadit": "workspace:*"
+    "@uppy/tus": "workspace:*"
+    "@uppy/webcam": "workspace:*"
+    "@uppy/xhr-upload": "workspace:*"
+    vite: "npm:^5.2.7"
+  languageName: unknown
+  linkType: soft
+
 "vite@npm:5.2.11":
   version: 5.2.11
   resolution: "vite@npm:5.2.11"
@@ -30815,7 +30837,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.4.12":
+"vite@npm:^5.2.7, vite@npm:^5.4.12":
   version: 5.4.14
   resolution: "vite@npm:5.4.14"
   dependencies:

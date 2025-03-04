@@ -3,6 +3,7 @@ import type { UppyFile } from './UppyFile.js'
 export function filterNonFailedFiles(
   files: UppyFile<any, any>[],
 ): UppyFile<any, any>[] {
+  console.log("hello from uppy fileFilters.ts <---->")
   const hasError = (file: UppyFile<any, any>): boolean =>
     'error' in file && !!file.error
 
