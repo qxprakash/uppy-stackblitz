@@ -1592,36 +1592,38 @@ export class Uppy<
       file,
       response,
     ) => {
-      let errorMsg = error.message || 'Unknown error'
-      if (error.details) {
-        errorMsg += ` ${error.details}`
-      }
-
-      this.setState({ error: errorMsg })
-
-      if (file != null && file.id in this.getState().files) {
-        this.setFileState(file.id, {
-          error: errorMsg,
-          response,
-        })
+      // Only update file state if the error is not user-facing
+      if (!error.isUserFacing) {
+        let errorMsg = error.message || 'Unknown error'
+        if (error.details) {
+          errorMsg += ` ${error.details}`
+        }
+        this.setState({ error: errorMsg })
+        if (file != null && file.id in this.getState().files) {
+          this.setFileState(file.id, {
+            error: errorMsg,
+            response,
+          })
+        }
       }
     }
 
     this.on('error', errorHandler)
 
     this.on('upload-error', (file, error, response) => {
+      // First, run the original errorHandler (which sets the file state once)
       errorHandler(error, file, response)
 
       if (typeof error === 'object' && error.message) {
         this.log(error.message, 'error')
+        // Build the user-facing error with a custom message using i18n.
         const newError = new Error(
           this.i18n('failedToUpload', { file: file?.name ?? '' }),
-        ) as any // we may want a new custom error here
-        newError.isUserFacing = true // todo maybe don't do this with all errors?
+        ) as any
+        newError.isUserFacing = true
+        newError.file = file
+        // Set details to the original error message so that the info shows up correctly.
         newError.details = error.message
-        if (error.details) {
-          newError.details += ` ${error.details}`
-        }
         this.#informAndEmit([newError])
       } else {
         this.#informAndEmit([error])
