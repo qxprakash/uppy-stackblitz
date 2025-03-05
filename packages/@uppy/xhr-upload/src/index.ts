@@ -167,7 +167,7 @@ export default class XHRUpload<
     this.defaultLocale = locale
 
     this.i18nInit()
-    this.uppy.log("constructor log in xhr-upload <--------->", "warning")
+    this.uppy.log('constructor log in xhr-upload <--------->', 'warning')
 
     // Simultaneous upload limiting is shared across all uploads with this plugin.
     if (internalRateLimitedQueue in this.opts) {
@@ -204,7 +204,7 @@ export default class XHRUpload<
      */
     this.#getFetcher = (files: UppyFile<M, B>[]) => {
       // Initial logging for function entry
-      this.uppy.log("[XHRUpload] getFetcher: starting upload", "warning")
+      this.uppy.log('[XHRUpload] getFetcher: starting upload', 'warning')
       // this.uppy.log("[XHRUpload] Files to upload: " + files.map(f => f.id).join(', '), "warning")
 
       return async (
@@ -213,14 +213,14 @@ export default class XHRUpload<
           onBeforeRequest?: Opts<M, B>['onBeforeRequest']
         },
       ) => {
-        this.uppy.log(`[XHRUpload] Starting request to: ${url}`, "warning")
+        this.uppy.log(`[XHRUpload] Starting request to: ${url}`, 'warning')
 
         try {
           const res = await fetcher(url, {
             ...options,
             // Log retry attempts
             onBeforeRequest: (xhr, retryCount) => {
-              this.uppy.log(`[XHRUpload] Attempt ${retryCount + 1}`, "warning")
+              this.uppy.log(`[XHRUpload] Attempt ${retryCount + 1}`, 'warning')
               return this.opts.onBeforeRequest?.(xhr, retryCount, files)
             },
             shouldRetry: this.opts.shouldRetry,
@@ -228,7 +228,10 @@ export default class XHRUpload<
             // Log timeout events
             onTimeout: (timeout) => {
               const seconds = Math.ceil(timeout / 1000)
-              this.uppy.log(`[XHRUpload] Upload stalled after ${seconds}s`, "warning")
+              this.uppy.log(
+                `[XHRUpload] Upload stalled after ${seconds}s`,
+                'warning',
+              )
               const error = new Error(this.i18n('uploadStalled', { seconds }))
               this.uppy.emit('upload-stalled', error, files)
             },
@@ -236,7 +239,10 @@ export default class XHRUpload<
             onUploadProgress: (event) => {
               if (event.lengthComputable) {
                 const progress = Math.round((event.loaded / event.total) * 100)
-                this.uppy.log(`[XHRUpload] Upload progress: ${progress}%`, "warning")
+                this.uppy.log(
+                  `[XHRUpload] Upload progress: ${progress}%`,
+                  'warning',
+                )
 
                 for (const { id } of files) {
                   const file = this.uppy.getFile(id)
@@ -250,21 +256,30 @@ export default class XHRUpload<
             },
           })
 
-          this.uppy.log(`[XHRUpload] Request succeeded with status: ${res.status}`, "warning")
+          this.uppy.log(
+            `[XHRUpload] Request succeeded with status: ${res.status}`,
+            'warning',
+          )
 
           // Handle response data
           let body = await this.opts.getResponseData?.(res)
-          this.uppy.log("[XHRUpload] Response data received", "warning")
+          this.uppy.log('[XHRUpload] Response data received', 'warning')
 
           if (res.responseType === 'json') {
             body ??= res.response
-            this.uppy.log("[XHRUpload] Using JSON response directly", "warning")
+            this.uppy.log('[XHRUpload] Using JSON response directly', 'warning')
           } else {
             try {
               body ??= JSON.parse(res.responseText) as B
-              this.uppy.log("[XHRUpload] Parsed response text as JSON", "warning")
+              this.uppy.log(
+                '[XHRUpload] Parsed response text as JSON',
+                'warning',
+              )
             } catch (cause) {
-              this.uppy.log("[XHRUpload] Failed to parse response as JSON", "warning")
+              this.uppy.log(
+                '[XHRUpload] Failed to parse response as JSON',
+                'warning',
+              )
               throw new Error(
                 '@uppy/xhr-upload expects a JSON response (with a `url` property). To parse non-JSON responses, use `getResponseData` to turn your response into JSON.',
                 { cause },
@@ -273,11 +288,17 @@ export default class XHRUpload<
           }
 
           const uploadURL = typeof body?.url === 'string' ? body.url : undefined
-          this.uppy.log(`[XHRUpload] Upload URL from response: ${uploadURL}`, "warning")
+          this.uppy.log(
+            `[XHRUpload] Upload URL from response: ${uploadURL}`,
+            'warning',
+          )
 
           // Emit success events
           for (const { id } of files) {
-            this.uppy.log(`[XHRUpload] Emitting success for file: ${id}`, "warning")
+            this.uppy.log(
+              `[XHRUpload] Emitting success for file: ${id}`,
+              'warning',
+            )
             this.uppy.emit('upload-success', this.uppy.getFile(id), {
               status: res.status,
               body,
@@ -286,19 +307,24 @@ export default class XHRUpload<
           }
 
           return res
-
         } catch (error) {
           // Handle errors
           if (error.name === 'AbortError') {
-            this.uppy.log("[XHRUpload] Upload aborted by user", "warning")
+            this.uppy.log('[XHRUpload] Upload aborted by user', 'warning')
             return undefined
           }
 
-          this.uppy.log(`[XHRUpload] Upload failed: ${error.message}`, "warning")
+          this.uppy.log(
+            `[XHRUpload] Upload failed: ${error.message}`,
+            'warning',
+          )
           const request = error.request as XMLHttpRequest | undefined
 
           for (const file of files) {
-            this.uppy.log(`[XHRUpload] Emitting error for file: ${file.id}`, "warning")
+            this.uppy.log(
+              `[XHRUpload] Emitting error for file: ${file.id}`,
+              'warning',
+            )
             this.uppy.emit(
               'upload-error',
               this.uppy.getFile(file.id),
@@ -307,9 +333,9 @@ export default class XHRUpload<
             )
           }
 
-          this.uppy.log("[XHRUpload] Re-throwing error", "warning")
-          this.uppy.log(` error --> ${error}`, "warning")
-          // throw error
+          this.uppy.log('[XHRUpload] Re-throwing error', 'warning')
+          this.uppy.log(` error --> ${error}`, 'warning')
+          return undefined
         }
       }
     }
@@ -405,7 +431,7 @@ export default class XHRUpload<
   }
 
   async #uploadLocalFile(file: UppyFile<M, B>) {
-    this.uppy.log("log in xhr-upload <--------->", "warning")
+    this.uppy.log('log in xhr-upload <--------->', 'warning')
     const events = new EventManager(this.uppy)
     const controller = new AbortController()
     const uppyFetch = this.requests.wrapPromiseFunction(async () => {
@@ -438,7 +464,7 @@ export default class XHRUpload<
   }
 
   async #uploadBundle(files: UppyFile<M, B>[]) {
-    this.uppy.log("log in xhr-upload <--------->", "warning")
+    this.uppy.log('log in xhr-upload <--------->', 'warning')
     const controller = new AbortController()
     const uppyFetch = this.requests.wrapPromiseFunction(async () => {
       const optsFromState = this.uppy.getState().xhrUpload ?? {}
@@ -497,7 +523,7 @@ export default class XHRUpload<
   }
 
   async #uploadFiles(files: UppyFile<M, B>[]) {
-    this.uppy.log("uploadfiles -->", "warning")
+    this.uppy.log('uploadfiles -->', 'warning')
     await Promise.allSettled(
       files.map((file) => {
         if (file.isRemote) {
@@ -532,13 +558,13 @@ export default class XHRUpload<
   }
 
   #handleUpload = async (fileIDs: string[]) => {
-    this.uppy.log('uppy log in handleUpload <----------->','warning')
-    this.uppy.log('file ids in handleUpload <----------->','warning')
-    this.uppy.log(fileIDs,'warning')
-    this.uppy.log('file ids in handleUpload <----------->','warning')
-    this.uppy.log(this.uppy.getState().files,'warning')
+    this.uppy.log('uppy log in handleUpload <----------->', 'warning')
+    this.uppy.log('file ids in handleUpload <----------->', 'warning')
+    this.uppy.log(fileIDs, 'warning')
+    this.uppy.log('file ids in handleUpload <----------->', 'warning')
+    this.uppy.log(this.uppy.getState().files, 'warning')
     if (fileIDs.length === 0) {
-      this.uppy.log('[XHRUpload] No files to upload!','warning')
+      this.uppy.log('[XHRUpload] No files to upload!', 'warning')
       return
     }
 
@@ -553,17 +579,17 @@ export default class XHRUpload<
       )
     }
 
-    this.uppy.log('[XHRUpload] Uploading...','warning')
+    this.uppy.log('[XHRUpload] Uploading...', 'warning')
     const files = this.uppy.getFilesByIds(fileIDs)
 
     const filesFiltered = filterNonFailedFiles(files)
     const filesToEmit = filterFilesToEmitUploadStarted(filesFiltered)
     this.uppy.emit('upload-start', filesToEmit)
 
-    this.uppy.log("files Filtered: -->", "warning")
-    this.uppy.log(filesFiltered, "warning")
-    this.uppy.log("files to emit", "warning")
-    this.uppy.log(filesToEmit, "warning")
+    this.uppy.log('files Filtered: -->', 'warning')
+    this.uppy.log(filesFiltered, 'warning')
+    this.uppy.log('files to emit', 'warning')
+    this.uppy.log(filesToEmit, 'warning')
 
     if (this.opts.bundle) {
       // if bundle: true, we don’t support remote uploads
