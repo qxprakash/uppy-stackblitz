@@ -335,7 +335,7 @@ export default class XHRUpload<
 
           this.uppy.log('[XHRUpload] Re-throwing error', 'warning')
           this.uppy.log(` error --> ${error}`, 'warning')
-          return undefined
+          throw error
         }
       }
     }
