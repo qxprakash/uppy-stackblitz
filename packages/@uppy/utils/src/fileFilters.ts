@@ -3,12 +3,14 @@ import type { UppyFile } from './UppyFile.js'
 export function filterNonFailedFiles(
   files: UppyFile<any, any>[],
 ): UppyFile<any, any>[] {
-  console.log("hello from uppy fileFilters.ts <----> asdfhj asdfkajsdf")
+  console.log(
+    'hello from uppy fileFilters.ts <----> asdfhj asdfkajsdf asdf asdfasdf',
+  )
   const hasError = (file: UppyFile<any, any>): boolean =>
     'error' in file && !!file.error
 
   const filesSucess = files.filter((file) => !hasError(file))
-  console.log("files success: ", filesSucess)
+  console.log('files success: ', filesSucess)
   return filesSucess
 }
 
