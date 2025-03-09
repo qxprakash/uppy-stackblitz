@@ -108,19 +108,37 @@ app.get('/s3/sts', (req, res, next) => {
 })
 
 const signOnServer = (req, res, next) => {
-  console.log('Received signing request')
-  console.log('File name:', req.body.filename)
-  console.log('Content type:', req.body.contentType)
-  console.log('Request Body:', req.body)
-  const Key = `${crypto.randomUUID()}-${req.body.filename}`
-  console.log('Generated object key:', Key)
+  console.log('=== S3 Signing Request Debug ===')
+  console.log('1. Request Method:', req.method)
+  console.log('2. Query Parameters:', req.query)
+  console.log('3. Request Headers:', req.headers)
+  console.log('4. Request URL:', req.url)
+  console.log('5. Raw Body:', req.body)
+  // const Key = `${crypto.randomUUID()}-${req.query.filename}`
+  // console.log('Generated object key:', Key)
+  console.log("request query file type is", req.query.type)
+  let Key;
+  let fileType;
+  if (req.method === 'POST') {
 
+    console.log("request method type POST =======")
+    Key = `${crypto.randomUUID()}-${req.body.filename}`
+    console.log('Generated object key:', Key)
+    console.log("request body file type is", req.body.type)
+    const fileType = req.body.type
+  }else if (req.method === 'GET'){
+    console.log("request method type GET =======")
+    const fileType = req.query.type
+    Key = `${crypto.randomUUID()}-${req.query.filename}`
+    console.log('Generated object key:', Key)
+    console.log("request query file type is", req.query.type)
+  }
   getSignedUrl(
     getS3Client(),
     new PutObjectCommand({
       Bucket: process.env.COMPANION_AWS_BUCKET,
       Key,
-      ContentType: req.body.contentType,
+      ContentType: fileType,
     }),
     { expiresIn },
   ).then((url) => {

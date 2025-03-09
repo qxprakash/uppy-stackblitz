@@ -356,6 +356,9 @@ export default class AwsS3Multipart<
         : this.getUploadParameters,
     } satisfies Partial<AwsS3MultipartOptions<M, B>>
 
+    console.log("uppy constructor opts: ", opts)
+    console.log("dynamicDefaultOptions: ", dynamicDefaultOptions)
+    console.log("uppy : ", uppy)
     for (const key of Object.keys(dynamicDefaultOptions)) {
       if (this.opts[key as keyof typeof dynamicDefaultOptions] == null) {
         this.opts[key as keyof typeof dynamicDefaultOptions] =
@@ -389,8 +392,7 @@ export default class AwsS3Multipart<
   }
 
   #setClient(opts?: Partial<AwsS3MultipartOptions<M, B>>) {
-    this.uppy.log("setClient: ", "warning")
-    this.uppy.log(opts, "warning")
+    console.log("setClient: opts", opts)
     if (
       opts == null ||
       !(
@@ -404,19 +406,19 @@ export default class AwsS3Multipart<
     )
       return
     if ('companionUrl' in opts && !('endpoint' in opts)) {
-      this.uppy.log(
+      console.log(
         '`companionUrl` option has been removed in @uppy/aws-s3, use `endpoint` instead.',
         'warning',
       )
     }
     if ('companionHeaders' in opts && !('headers' in opts)) {
-      this.uppy.log(
+      console.log(
         '`companionHeaders` option has been removed in @uppy/aws-s3, use `headers` instead.',
         'warning',
       )
     }
     if ('companionCookiesRule' in opts && !('cookiesRule' in opts)) {
-      this.uppy.log(
+      console.log(
         '`companionCookiesRule` option has been removed in @uppy/aws-s3, use `cookiesRule` instead.',
         'warning',
       )
@@ -576,11 +578,17 @@ export default class AwsS3Multipart<
     file: UppyFile<M, B>,
     options: SignPartOptions,
   ): Promise<AwsS3UploadParameters> {
+    console.log("createSignedURL: function <-------->")
+    console.log("file: ", file)
+    console.log("options: ", options)
     const data = await this.#getTemporarySecurityCredentials(options)
+    console.log("data: ", data)
     const expires = getExpiry(data.credentials) || 604_800 // 604 800 is the max value accepted by AWS.
-
+    console.log("expires: ", expires)
     const { uploadId, key, partNumber } = options
-
+    console.log("uploadId: ", uploadId)
+    console.log("key: ", key)
+    console.log("partNumber: ", partNumber)
     // Return an object in the correct shape.
     return {
       method: 'PUT',
@@ -645,28 +653,48 @@ export default class AwsS3Multipart<
     file: UppyFile<M, B>,
     options: RequestOptions,
   ): Promise<AwsS3UploadParameters> {
-    this.uppy.log("getUploadParameters: ", "warning")
-    this.uppy.log(file, "warning")
-    this.uppy.log("options", "warning")
-    this.uppy.log(options, "warning")
+    console.log("getUploadParameters: Funtion <-------->")
+    console.log("file: ", file)
+    console.log("options: ", options)
+
     this.#assertHost('getUploadParameters')
     const { meta } = file
     const { type, name: filename } = meta
+    console.log("meta: ", meta)
+    console.log("type: ", type)
+    console.log("filename: ", filename)
     const allowedMetaFields = getAllowedMetaFields(
       this.opts.allowedMetaFields,
       file.meta,
     )
+    console.log("allowedMetaFields: ", allowedMetaFields)
     const metadata = getAllowedMetadata({
       meta,
       allowedMetaFields,
       querify: true,
     })
-
+    console.log("metadata: from get allowed metadata", metadata)
     const query = new URLSearchParams({ filename, type, ...metadata } as Record<
       string,
       string
     >)
 
+// Add this test code right after creating the query
+  const queryTest = new URLSearchParams({
+    filename: filename || file.name,
+    type: type || file.type,
+    ...metadata
+  }as Record<string, string>)
+
+  // Test the query parameters
+  const testParams = {
+    filename: queryTest.get('filename'),
+    type: queryTest.get('type'),
+    metadata: Object.fromEntries(queryTest.entries())
+  }
+
+    console.log('Query Test Results:', testParams)
+    console.log("query: ", query)
     return this.#client.get(`s3/params?${query}`, options)
   }
 
@@ -805,9 +833,9 @@ export default class AwsS3Multipart<
     file: UppyFile<M, B>,
     { key, uploadId }: UploadResult,
   ) => {
-    this.uppy.log("setS3MultipartState: ", "warning")
-    this.uppy.log(file, "warning")
-    this.uppy.log({ key, uploadId }, "warning")
+    console.log("setS3MultipartState: ", "warning")
+    console.log(file, "warning")
+    console.log({ key, uploadId }, "warning")
     const cFile = this.uppy.getFile(file.id)
     if (cFile == null) {
       // file was removed from store
@@ -828,8 +856,8 @@ export default class AwsS3Multipart<
   }
 
   #uploadLocalFile(file: UppyFile<M, B>) {
-    this.uppy.log("uploadLocalFile: ", "warning")
-    this.uppy.log(file, "warning")
+    console.log("uploadLocalFile: ", "warning")
+    console.log(file, "warning")
     return new Promise<void | string>((resolve, reject) => {
       const onProgress = (bytesUploaded: number, bytesTotal: number) => {
         const latestFile = this.uppy.getFile(file.id)
@@ -841,8 +869,27 @@ export default class AwsS3Multipart<
       }
 
       const onError = (err: unknown) => {
-        this.uppy.log(err as Error)
-        this.uppy.emit('upload-error', file, err as Error)
+        console.log(err as Error)
+
+      // Create a properly typed error response
+      const errorResponse: UppyFile<M, B>['response'] = {
+        status: (err as any)?.source?.status || 500,
+        // Create error body with proper type casting
+        body: {
+          message: err instanceof Error ? err.message : 'Unknown error',
+          code: (err as any)?.source?.status || 500,
+          details: (err as any)?.details || '',
+        } as unknown as B, // Safe type casting through unknown
+        bytesUploaded: (err as any)?.bytesUploaded || 0
+      }
+
+      // Log formatted error response for debugging
+      console.log('Error Response:', {
+        status: errorResponse.status,
+        body: errorResponse.body,
+        bytesUploaded: errorResponse.bytesUploaded
+      })
+        this.uppy.emit('upload-error', file, err as Error, errorResponse)
 
         this.resetUploaderReferences(file.id)
         reject(err)
@@ -862,7 +909,7 @@ export default class AwsS3Multipart<
         this.uppy.emit('upload-success', this.#getFile(file), uploadResp)
 
         if (result.location) {
-          this.uppy.log(`Download ${file.name} from ${result.location}`)
+          console.log(`Download ${file.name} from ${result.location}`)
         }
 
         resolve()
@@ -872,7 +919,7 @@ export default class AwsS3Multipart<
         // .bind to pass the file object to each handler.
         companionComm: this.#companionCommunicationQueue,
 
-        log: (...args: Parameters<Uppy<M, B>['log']>) => this.uppy.log(...args),
+        log: (...args: Parameters<Uppy<M, B>['log']>) => console.log(...args),
         getChunkSize:
           this.opts.getChunkSize ?
             this.opts.getChunkSize.bind(this)
@@ -942,17 +989,16 @@ export default class AwsS3Multipart<
   }
 
   #upload = async (fileIDs: string[]) => {
-    this.uppy.log('[AwsS3Multipart] Uploading...', "warning")
-    this.uppy.log("fileIDs: ", "warning")
-    this.uppy.log(fileIDs, "warning")
+    console.log('[AwsS3Multipart] Uploading...')
+    console.log("fileIDs: ", fileIDs)
     if (fileIDs.length === 0) return undefined
 
     const files = this.uppy.getFilesByIds(fileIDs)
     const filesFiltered = filterNonFailedFiles(files)
     const filesToEmit = filterFilesToEmitUploadStarted(filesFiltered)
-    this.uppy.log("filesToEmit: ", "warning")
-    this.uppy.log(filesToEmit, "warning")
-    this.uppy.emit('upload-start', filesToEmit)
+    console.log("filesToEmit: ", "warning")
+    console.log(filesToEmit, "warning")
+    console.log('upload-start', filesToEmit)
 
     const promises = filesFiltered.map((file) => {
       if (file.isRemote) {

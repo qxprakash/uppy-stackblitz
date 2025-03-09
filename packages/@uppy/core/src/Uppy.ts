@@ -457,7 +457,7 @@ export class Uppy<
     // Support debug: true for backwards-compatability, unless logger is set in opts
     // opts instead of this.opts to avoid comparing objects — we set logger: justErrorsLogger in defaultOptions
     if (opts && opts.logger && opts.debug) {
-      this.log(
+      console.log(
         'You are using a custom `logger`, but also set `debug: true`, which uses built-in logger to output logs to console. Ignoring `debug: true` and using your custom `logger`.',
         'warning',
       )
@@ -465,7 +465,7 @@ export class Uppy<
       this.opts.logger = debugLogger
     }
 
-    this.log(`Using Core v${Uppy.VERSION}`)
+    console.log(`Using Core v${Uppy.VERSION}`)
 
     this.i18nInit()
 
@@ -598,7 +598,7 @@ export class Uppy<
 
   i18nInit(): void {
     const onMissingKey = (key: string): void =>
-      this.log(`Missing i18n string: ${key}`, 'error')
+      console.log(`Missing i18n string: ${key}`, 'error')
     const translator = new Translator([this.defaultLocale, this.opts.locale], {
       onMissingKey,
     })
@@ -710,8 +710,8 @@ export class Uppy<
       }
     })
 
-    this.log('Adding metadata:')
-    this.log(data)
+    console.log('Adding metadata:')
+    console.log(data)
 
     this.setState({
       meta: updatedMeta,
@@ -722,7 +722,7 @@ export class Uppy<
   setFileMeta(fileID: string, data: State<M, B>['meta']): void {
     const updatedFiles = { ...this.getState().files }
     if (!updatedFiles[fileID]) {
-      this.log(
+      console.log(
         `Was trying to set metadata for a file that has been removed: ${fileID}`,
       )
       return
@@ -852,42 +852,42 @@ export class Uppy<
       file?: UppyFile<M, B>
     }[],
   ): void {
-    this.log('inform and emit errors -->', 'warning')
-    this.log(errors, 'warning')
+    console.log('inform and emit errors -->', 'warning')
+    console.log(errors, 'warning')
     for (const error of errors) {
-      this.log('error inside for loop -->', 'warning')
-      this.log(error, 'warning')
+      console.log('error inside for loop -->', 'warning')
+      console.log(error, 'warning')
       if (error.isRestriction) {
-        this.log('error is restriction -->', 'warning')
+        console.log('error is restriction -->', 'warning')
         this.emit(
           'restriction-failed',
           error.file,
           error as RestrictionError<M, B>,
         )
       } else {
-        this.log('error is not restriction -->', 'warning')
-        this.log('error file -->', 'warning')
-        this.log(error.file, 'warning')
+        console.log('error is not restriction -->', 'warning')
+        console.log('error file -->', 'warning')
+        console.log(error.file, 'warning')
         this.emit('error', error, error.file)
       }
-      this.log('outside if else -->', 'warning')
-      this.log(error, 'warning') // actual log which I got was this
+      console.log('outside if else -->', 'warning')
+      console.log(error, 'warning') // actual log which I got was this
     }
 
     const userFacingErrors = errors.filter((error) => error.isUserFacing)
 
-    this.log('userFacingErrors -->', 'warning')
-    this.log(userFacingErrors, 'warning')
+    console.log('userFacingErrors -->', 'warning')
+    console.log(userFacingErrors, 'warning')
     // don't flood the user: only show the first 4 toasts
     const maxNumToShow = 4
     const firstErrors = userFacingErrors.slice(0, maxNumToShow)
     const additionalErrors = userFacingErrors.slice(maxNumToShow)
     firstErrors.forEach(({ message, details = '' }) => {
-      this.log('first errors for each -->', 'warning')
-      this.log('message -->', 'warning')
-      this.log(message, 'warning')
-      this.log('details -->', 'warning')
-      this.log(details, 'warning')
+      console.log('first errors for each -->', 'warning')
+      console.log('message -->', 'warning')
+      console.log(message, 'warning')
+      console.log('details -->', 'warning')
+      console.log(details, 'warning')
       this.info({ message, details }, 'error', this.opts.infoTimeout)
     })
 
@@ -939,7 +939,7 @@ export class Uppy<
 
     if (missingFields.length > 0) {
       this.setFileState(file.id, { missingRequiredMetaFields: missingFields })
-      this.log(error.message)
+      console.log(error.message)
       this.emit('restriction-failed', file, error)
       return false
     }
@@ -947,9 +947,9 @@ export class Uppy<
   }
 
   #checkRequiredMetaFields(files: State<M, B>['files']): boolean {
-    this.log('check required meta fields -->', 'warning')
-    this.log('files in check required meta fields -->', 'warning')
-    this.log(files, 'warning')
+    console.log('check required meta fields -->', 'warning')
+    console.log('files in check required meta fields -->', 'warning')
+    console.log(files, 'warning')
     let success = true
     for (const file of Object.values(files)) {
       if (!this.#checkRequiredMetaFieldsOnFile(file)) {
@@ -1046,7 +1046,7 @@ export class Uppy<
         this.scheduledAutoProceed = null
         this.upload().catch((err) => {
           if (!err.isRestriction) {
-            this.log(err.stack || err.message || err)
+            console.log(err.stack || err.message || err)
           }
         })
       }, 4)
@@ -1081,7 +1081,7 @@ export class Uppy<
             isGhost: false,
             data: fileToAdd.data,
           }
-          this.log(
+          console.log(
             `Replaced the blob in the restored ghost file: ${newFile.name}, ${newFile.id}`,
           )
         }
@@ -1174,7 +1174,7 @@ export class Uppy<
 
     this.emit('file-added', firstValidFileToAdd)
     this.emit('files-added', validFilesToAdd)
-    this.log(
+    console.log(
       `Added file: ${firstValidFileToAdd.name}, ${firstValidFileToAdd.id}, mime type: ${firstValidFileToAdd.type}`,
     )
 
@@ -1239,10 +1239,10 @@ export class Uppy<
     this.emit('files-added', validFilesToAdd)
 
     if (validFilesToAdd.length > 5) {
-      this.log(`Added batch of ${validFilesToAdd.length} files`)
+      console.log(`Added batch of ${validFilesToAdd.length} files`)
     } else {
       Object.values(validFilesToAdd).forEach((file) => {
-        this.log(
+        console.log(
           `Added file: ${file.name}\n id: ${file.id}\n type: ${file.type}`,
         )
       })
@@ -1319,9 +1319,9 @@ export class Uppy<
     })
 
     if (removedFileIDs.length > 5) {
-      this.log(`Removed ${removedFileIDs.length} files`)
+      console.log(`Removed ${removedFileIDs.length} files`)
     } else {
-      this.log(`Removed files: ${removedFileIDs.join(', ')}`)
+      console.log(`Removed files: ${removedFileIDs.join(', ')}`)
     }
   }
 
@@ -1461,22 +1461,22 @@ export class Uppy<
     file: UppyFile<M, B> | undefined,
     progress: FileProgressStarted,
   ) => {
-    this.log('handleUploadProgress -->', 'warning')
-    this.log('file -->', 'warning')
-    this.log(file, 'warning')
-    this.log('progress -->', 'warning')
-    this.log(progress, 'warning')
+    console.log('handleUploadProgress -->', 'warning')
+    console.log('file -->', 'warning')
+    console.log(file, 'warning')
+    console.log('progress -->', 'warning')
+    console.log(progress, 'warning')
 
     const fileInState = file ? this.getFile(file.id) : undefined
     if (file == null || !fileInState) {
-      this.log(
+      console.log(
         `Not setting progress for a file that has been removed: ${file?.id}`,
       )
       return
     }
 
     if (fileInState.progress.percentage === 100) {
-      this.log(
+      console.log(
         `Not setting progress for a file that has been already uploaded: ${file.id}`,
       )
       return
@@ -1617,31 +1617,31 @@ export class Uppy<
       file,
       response,
     ) => {
-      this.log(`[Uppy] "error" listener,`, 'warning')
-      this.log('error --->', 'warning')
-      this.log(error, 'warning')
-      this.log('file --->', 'warning')
-      this.log(file, 'warning')
-      this.log('response --->', 'warning')
-      this.log(response, 'warning')
-      // this.log(this.getState().files, "warning")
+      console.log(`[Uppy] "error" listener,`, 'warning')
+      console.log('error --->', 'warning')
+      console.log(error, 'warning')
+      console.log('file --->', 'warning')
+      console.log(file, 'warning')
+      console.log('response --->', 'warning')
+      console.log(response, 'warning')
+      // console.log(this.getState().files, "warning")
       let errorMsg = error.message || 'Unknown error'
       if (error.details) {
         errorMsg += ` ${error.details}`
       }
-      this.log('error message --->', 'warning')
-      this.log(errorMsg, 'warning')
+      console.log('error message --->', 'warning')
+      console.log(errorMsg, 'warning')
       this.setState({ error: errorMsg })
 
-      this.log('file.id in state.files --->', 'warning')
-      this.log(
+      console.log('file.id in state.files --->', 'warning')
+      console.log(
         file != null && 'id' in file && file.id in this.getState().files,
         'warning',
       )
-      this.log('file.id --->', 'warning')
-      this.log(file?.id, 'warning')
+      console.log('file.id --->', 'warning')
+      console.log(file?.id, 'warning')
       if (file != null && file.id in this.getState().files) {
-        this.log(
+        console.log(
           'file is not null and file.id is in state.files --->',
           'warning',
         )
@@ -1649,22 +1649,22 @@ export class Uppy<
           error: errorMsg,
           response,
         })
-        this.log(this.getFile(file.id), 'warning')
+        console.log(this.getFile(file.id), 'warning')
       }
     }
 
     this.on('error', errorHandler)
 
     this.on('upload-error', (file, error, response) => {
-      this.log(`[Uppy] "upload-error" listener ,error ---> ${error}`, 'warning')
-      this.log('file --->', 'warning')
-      this.log(file, 'warning')
-      this.log('response -->', 'warning')
-      this.log(response, 'warning')
+      console.log(`[Uppy] "upload-error" listener ,error ---> ${error}`, 'warning')
+      console.log('file --->', 'warning')
+      console.log(file, 'warning')
+      console.log('response -->', 'warning')
+      console.log(response, 'warning')
       errorHandler(error, file, response)
 
       if (typeof error === 'object' && error.message) {
-        this.log(
+        console.log(
           'type of error is object and error.message is present <-------->',
           'warning',
         )
@@ -1677,11 +1677,11 @@ export class Uppy<
           newError.details += ` ${error.details}`
         }
 
-        this.log('typeof file --->', 'warning')
-        this.log(typeof file, 'warning')
+        console.log('typeof file --->', 'warning')
+        console.log(typeof file, 'warning')
         // Log all properties of newError
-        this.log('newError properties:', 'warning')
-        this.log(
+        console.log('newError properties:', 'warning')
+        console.log(
           {
             message: newError.message,
             name: newError.name,
@@ -1713,7 +1713,7 @@ export class Uppy<
           uploadStalledWarningRecentlyEmitted = null
         }, this.opts.infoTimeout)
       }
-      this.log(`${message} ${details}`.trim(), 'warning')
+      console.log(`${message} ${details}`.trim(), 'warning')
     })
 
     this.on('upload', () => {
@@ -1721,13 +1721,13 @@ export class Uppy<
     })
 
     const onUploadStarted = (files: UppyFile<M, B>[]): void => {
-      this.log("[Uppy] 'upload-start' listener", 'warning')
-      this.log('files --->', 'warning')
-      this.log(files, 'warning')
+      console.log("[Uppy] 'upload-start' listener", 'warning')
+      console.log('files --->', 'warning')
+      console.log(files, 'warning')
       const filesFiltered = files.filter((file) => {
         const exists = file != null && this.getFile(file.id)
         if (!exists)
-          this.log(
+          console.log(
             `Not setting progress for a file that has been removed: ${file?.id}`,
           )
         return exists
@@ -1755,13 +1755,13 @@ export class Uppy<
     this.on('upload-progress', this.#handleUploadProgress)
 
     this.on('upload-success', (file, uploadResp) => {
-      this.log("[Uppy] 'upload-success' listener", 'warning')
-      this.log('file --->', 'warning')
-      this.log(file, 'warning')
-      this.log('uploadResp --->', 'warning')
-      this.log(uploadResp, 'warning')
+      console.log("[Uppy] 'upload-success' listener", 'warning')
+      console.log('file --->', 'warning')
+      console.log(file, 'warning')
+      console.log('uploadResp --->', 'warning')
+      console.log(uploadResp, 'warning')
       if (file == null || !this.getFile(file.id)) {
-        this.log(
+        console.log(
           `Not setting progress for a file that has been removed: ${file?.id}`,
         )
         return
@@ -1798,9 +1798,9 @@ export class Uppy<
     })
 
     this.on('preprocess-progress', (file, progress) => {
-      this.log("[Uppy] 'preprocess-progress' listener", 'warning')
+      console.log("[Uppy] 'preprocess-progress' listener", 'warning')
       if (file == null || !this.getFile(file.id)) {
-        this.log(
+        console.log(
           `Not setting progress for a file that has been removed: ${file?.id}`,
         )
         return
@@ -1811,9 +1811,9 @@ export class Uppy<
     })
 
     this.on('preprocess-complete', (file) => {
-      this.log("[Uppy] 'preprocess-complete' listener", 'warning')
+      console.log("[Uppy] 'preprocess-complete' listener", 'warning')
       if (file == null || !this.getFile(file.id)) {
-        this.log(
+        console.log(
           `Not setting progress for a file that has been removed: ${file?.id}`,
         )
         return
@@ -1829,9 +1829,9 @@ export class Uppy<
     })
 
     this.on('postprocess-progress', (file, progress) => {
-      this.log("[Uppy] 'postprocess-progress' listener", 'warning')
+      console.log("[Uppy] 'postprocess-progress' listener", 'warning')
       if (file == null || !this.getFile(file.id)) {
-        this.log(
+        console.log(
           `Not setting progress for a file that has been removed: ${file?.id}`,
         )
         return
@@ -1845,9 +1845,9 @@ export class Uppy<
     })
 
     this.on('postprocess-complete', (file) => {
-      this.log("[Uppy] 'postprocess-complete' listener", 'warning')
+      console.log("[Uppy] 'postprocess-complete' listener", 'warning')
       if (file == null || !this.getFile(file.id)) {
-        this.log(
+        console.log(
           `Not setting progress for a file that has been removed: ${file?.id}`,
         )
         return
@@ -1867,7 +1867,7 @@ export class Uppy<
     })
 
     this.on('restored', () => {
-      this.log("[Uppy] 'restored' listener", 'warning')
+      console.log("[Uppy] 'restored' listener", 'warning')
       // Files may have changed--ensure progress is still accurate.
       this.#updateTotalProgressThrottled()
     })
@@ -1881,7 +1881,7 @@ export class Uppy<
 
     // show informer if offline
     if (typeof window !== 'undefined' && window.addEventListener) {
-      this.log("[Uppy] 'online' and 'offline' listeners", 'warning')
+      console.log("[Uppy] 'online' and 'offline' listeners", 'warning')
       window.addEventListener('online', this.#updateOnlineStatus)
       window.addEventListener('offline', this.#updateOnlineStatus)
       setTimeout(this.#updateOnlineStatus, 3000)
@@ -1952,7 +1952,7 @@ export class Uppy<
     // @ts-expect-error does exist
     if (Plugin.VERSION) {
       // @ts-expect-error does exist
-      this.log(`Using ${pluginId} v${Plugin.VERSION}`)
+      console.log(`Using ${pluginId} v${Plugin.VERSION}`)
     }
 
     if (plugin.type in this.#plugins) {
@@ -2000,7 +2000,7 @@ export class Uppy<
    * @param {object} instance The plugin instance to remove.
    */
   removePlugin(instance: UnknownPlugin<M, B>): void {
-    this.log(`Removing plugin ${instance.id}`)
+    console.log(`Removing plugin ${instance.id}`)
     this.emit('plugin-remove', instance)
 
     if (instance.uninstall) {
@@ -2030,7 +2030,7 @@ export class Uppy<
    * Uninstall all plugins and close down this Uppy instance.
    */
   destroy(): void {
-    this.log(
+    console.log(
       `Closing Uppy instance ${this.opts.id}: removing all files and uninstalling plugins`,
     )
 
@@ -2140,7 +2140,7 @@ export class Uppy<
    * Restore an upload by its ID.
    */
   restore(uploadID: string): Promise<UploadResult<M, B> | undefined> {
-    this.log(`Core: attempting to restore upload "${uploadID}"`)
+    console.log(`Core: attempting to restore upload "${uploadID}"`)
 
     if (!this.getState().currentUploads[uploadID]) {
       this.#removeUpload(uploadID)
@@ -2158,19 +2158,19 @@ export class Uppy<
     fileIDs: string[],
     opts: { forceAllowNewUpload?: boolean } = {},
   ): string {
-    this.log("[Uppy] 'createUpload' listener", 'warning')
-    this.log('fileIDs --->', 'warning')
-    this.log(fileIDs, 'warning')
-    this.log('opts --->', 'warning')
-    this.log(opts, 'warning')
+    console.log("[Uppy] 'createUpload' listener", 'warning')
+    console.log('fileIDs --->', 'warning')
+    console.log(fileIDs, 'warning')
+    console.log('opts --->', 'warning')
+    console.log(opts, 'warning')
     // uppy.retryAll sets this to true — when retrying we want to ignore `allowNewUpload: false`
     const { forceAllowNewUpload = false } = opts
 
     const { allowNewUpload, currentUploads } = this.getState()
-    this.log('allowNewUpload --->', 'warning')
-    this.log(allowNewUpload, 'warning')
-    this.log('currentUploads --->', 'warning')
-    this.log(currentUploads, 'warning')
+    console.log('allowNewUpload --->', 'warning')
+    console.log(allowNewUpload, 'warning')
+    console.log('currentUploads --->', 'warning')
+    console.log(currentUploads, 'warning')
     if (!allowNewUpload && !forceAllowNewUpload) {
       throw new Error('Cannot create a new upload: already uploading.')
     }
@@ -2213,7 +2213,7 @@ export class Uppy<
    */
   addResultData(uploadID: string, data: CurrentUpload<M, B>['result']): void {
     if (!this.#getUpload(uploadID)) {
-      this.log(
+      console.log(
         `Not setting result for an upload that has been removed: ${uploadID}`,
       )
       return
@@ -2245,17 +2245,17 @@ export class Uppy<
    * Run an upload. This picks up where it left off in case the upload is being restored.
    */
   async #runUpload(uploadID: string): Promise<UploadResult<M, B> | undefined> {
-    this.log("[Uppy] 'runUpload' listener", 'warning')
-    this.log('uploadID --->', 'warning')
-    this.log(uploadID, 'warning')
+    console.log("[Uppy] 'runUpload' listener", 'warning')
+    console.log('uploadID --->', 'warning')
+    console.log(uploadID, 'warning')
     const getCurrentUpload = (): CurrentUpload<M, B> => {
       const { currentUploads } = this.getState()
       return currentUploads[uploadID]
     }
 
     let currentUpload = getCurrentUpload()
-    this.log('currentUpload --->', 'warning')
-    this.log(currentUpload, 'warning')
+    console.log('currentUpload --->', 'warning')
+    console.log(currentUpload, 'warning')
     const steps = [
       ...this.#preProcessors,
       ...this.#uploaders,
@@ -2267,11 +2267,11 @@ export class Uppy<
           break
         }
         const fn = steps[step]
-        this.log(
+        console.log(
           'this.getState().currentUploads before setting into state --->',
           'warning',
         )
-        this.log(this.getState().currentUploads, 'warning')
+        console.log(this.getState().currentUploads, 'warning')
         this.setState({
           currentUploads: {
             ...this.getState().currentUploads,
@@ -2283,10 +2283,10 @@ export class Uppy<
         })
 
         const { fileIDs } = currentUpload
-        this.log('fileIDs destructured from currentUpload --->', 'warning')
-        this.log(fileIDs, 'warning')
-        this.log('uploadID --->', 'warning')
-        this.log(uploadID, 'warning')
+        console.log('fileIDs destructured from currentUpload --->', 'warning')
+        console.log(fileIDs, 'warning')
+        console.log('uploadID --->', 'warning')
+        console.log(uploadID, 'warning')
         // TODO give this the `updatedUpload` object as its only parameter maybe?
         // Otherwise when more metadata may be added to the upload this would keep getting more parameters
         await fn(fileIDs, uploadID)
@@ -2338,7 +2338,7 @@ export class Uppy<
       this.#removeUpload(uploadID)
     }
     if (result == null) {
-      this.log(
+      console.log(
         `Not setting result for an upload that has been removed: ${uploadID}`,
       )
     }
@@ -2349,9 +2349,10 @@ export class Uppy<
    * Start an upload for all the files that are not currently being uploaded.
    */
   upload(): Promise<NonNullable<UploadResult<M, B>> | undefined> {
+    console.log("[Uppy] 'upload' listener <-------------------->")
     if (!this.#plugins['uploader']?.length) {
-      this.log('hi there !', 'warning')
-      this.log('No uploader type plugins are used', 'warning')
+      console.log('hi there !', 'warning')
+      console.log('No uploader type plugins are used', 'warning')
     }
 
     let { files } = this.getState()
@@ -2386,13 +2387,13 @@ export class Uppy<
     }
 
     // If no files to retry, proceed with original upload() behavior for new files
-    this.log('files in this.getState inside upload()', 'warning')
-    this.log(files, 'warning')
+    console.log('files in this.getState inside upload()', 'warning')
+    console.log(files, 'warning')
 
     const onBeforeUploadResult = this.opts.onBeforeUpload(files)
 
-    this.log('onBeforeUploadResult --->', 'warning')
-    this.log(onBeforeUploadResult, 'warning')
+    console.log('onBeforeUploadResult --->', 'warning')
+    console.log(onBeforeUploadResult, 'warning')
     if (onBeforeUploadResult === false) {
       return Promise.reject(
         new Error(
@@ -2405,8 +2406,8 @@ export class Uppy<
       files = onBeforeUploadResult
       // Updating files in state, because uploader plugins receive file IDs,
       // and then fetch the actual file object from state
-      this.log('files in onBeforeUploadResult --->', 'warning')
-      this.log(files, 'warning')
+      console.log('files in onBeforeUploadResult --->', 'warning')
+      console.log(files, 'warning')
       this.setState({
         files,
       })
@@ -2426,65 +2427,65 @@ export class Uppy<
         }
       })
       .catch((err) => {
-        this.log('catching error 2nd catch in upload() --->', 'warning')
+        console.log('catching error 2nd catch in upload() --->', 'warning')
         // Doing this in a separate catch because we already emited and logged
         // all the errors in `checkRequiredMetaFields` so we only throw a generic
         // missing fields error here.
         throw err
       })
       .then(() => {
-        this.log('files in 3rd then in promise.resolve --->', 'warning')
-        this.log(files, 'warning')
+        console.log('files in 3rd then in promise.resolve --->', 'warning')
+        console.log(files, 'warning')
         const { currentUploads } = this.getState()
-        this.log('3rd then logging this.getState() --->', 'warning')
-        this.log(this.getState(), 'warning')
-        this.log('3rd then in promise.resolve currentUploads --->', 'warning')
-        this.log(currentUploads, 'warning')
+        console.log('3rd then logging this.getState() --->', 'warning')
+        console.log(this.getState(), 'warning')
+        console.log('3rd then in promise.resolve currentUploads --->', 'warning')
+        console.log(currentUploads, 'warning')
         // get a list of files that are currently assigned to uploads
         const currentlyUploadingFiles = Object.values(currentUploads).flatMap(
           (curr) => curr.fileIDs,
         )
-        this.log(
+        console.log(
           '3rd then in promise.resolve currentlyUploadingFiles --->',
           'warning',
         )
-        this.log(currentlyUploadingFiles, 'warning')
+        console.log(currentlyUploadingFiles, 'warning')
         const waitingFileIDs: string[] = []
 
-        this.log(
+        console.log(
           'files in 3rd then in promise.resolve logging second time --->',
           'warning',
         )
-        this.log(files, 'warning')
+        console.log(files, 'warning')
         Object.keys(files).forEach((fileID) => {
           const file = this.getFile(fileID)
-          this.log('file in files.forEach() --->', 'warning')
-          this.log(file, 'warning')
-          this.log('file progress upload started --->', 'warning')
-          this.log(file.progress.uploadStarted, 'warning')
+          console.log('file in files.forEach() --->', 'warning')
+          console.log(file, 'warning')
+          console.log('file progress upload started --->', 'warning')
+          console.log(file.progress.uploadStarted, 'warning')
           // if the file hasn't started uploading and hasn't already been assigned to an upload..
           if (
             !file.progress.uploadStarted &&
             currentlyUploadingFiles.indexOf(fileID) === -1
           ) {
-            this.log('adding file to waitingFileIDs --->', 'warning')
-            this.log(file, 'warning')
+            console.log('adding file to waitingFileIDs --->', 'warning')
+            console.log(file, 'warning')
             waitingFileIDs.push(file.id)
-            this.log('log waiting file ids --->', 'warning')
-            this.log(waitingFileIDs, 'warning')
+            console.log('log waiting file ids --->', 'warning')
+            console.log(waitingFileIDs, 'warning')
           }
         })
 
-        this.log('waitingFileIDs inside upload() --->', 'warning')
-        this.log(waitingFileIDs, 'warning')
+        console.log('waitingFileIDs inside upload() --->', 'warning')
+        console.log(waitingFileIDs, 'warning')
         const uploadID = this.#createUpload(waitingFileIDs)
-        this.log('uploadID returned from createUpload --->', 'warning')
-        this.log(uploadID, 'warning')
+        console.log('uploadID returned from createUpload --->', 'warning')
+        console.log(uploadID, 'warning')
         return this.#runUpload(uploadID)
       })
       .catch((err) => {
         this.emit('error', err)
-        this.log(err, 'error')
+        console.log(err, 'error')
         throw err
       })
   }
