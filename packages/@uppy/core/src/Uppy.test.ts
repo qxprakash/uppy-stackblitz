@@ -831,11 +831,11 @@ describe('src/Core', () => {
         type: 'image/jpeg',
         data: testImage,
       })
-
+  
       const fileId = Object.keys(core.getState().files)[0]
       const file = core.getFile(fileId)
       core.emit('error', new Error('foooooo'), file)
-
+ 
       expect(core.getState().error).toEqual('foooooo')
 
       expect(core.upload()).resolves.toMatchObject({

@@ -389,6 +389,8 @@ export default class AwsS3Multipart<
   }
 
   #setClient(opts?: Partial<AwsS3MultipartOptions<M, B>>) {
+    this.uppy.log("setClient: ", "warning")
+    this.uppy.log(opts, "warning")
     if (
       opts == null ||
       !(
@@ -643,6 +645,10 @@ export default class AwsS3Multipart<
     file: UppyFile<M, B>,
     options: RequestOptions,
   ): Promise<AwsS3UploadParameters> {
+    this.uppy.log("getUploadParameters: ", "warning")
+    this.uppy.log(file, "warning")
+    this.uppy.log("options", "warning")
+    this.uppy.log(options, "warning")
     this.#assertHost('getUploadParameters')
     const { meta } = file
     const { type, name: filename } = meta
@@ -799,6 +805,9 @@ export default class AwsS3Multipart<
     file: UppyFile<M, B>,
     { key, uploadId }: UploadResult,
   ) => {
+    this.uppy.log("setS3MultipartState: ", "warning")
+    this.uppy.log(file, "warning")
+    this.uppy.log({ key, uploadId }, "warning")
     const cFile = this.uppy.getFile(file.id)
     if (cFile == null) {
       // file was removed from store
@@ -819,6 +828,8 @@ export default class AwsS3Multipart<
   }
 
   #uploadLocalFile(file: UppyFile<M, B>) {
+    this.uppy.log("uploadLocalFile: ", "warning")
+    this.uppy.log(file, "warning")
     return new Promise<void | string>((resolve, reject) => {
       const onProgress = (bytesUploaded: number, bytesTotal: number) => {
         const latestFile = this.uppy.getFile(file.id)
@@ -931,12 +942,16 @@ export default class AwsS3Multipart<
   }
 
   #upload = async (fileIDs: string[]) => {
+    this.uppy.log('[AwsS3Multipart] Uploading...', "warning")
+    this.uppy.log("fileIDs: ", "warning")
+    this.uppy.log(fileIDs, "warning")
     if (fileIDs.length === 0) return undefined
 
     const files = this.uppy.getFilesByIds(fileIDs)
     const filesFiltered = filterNonFailedFiles(files)
     const filesToEmit = filterFilesToEmitUploadStarted(filesFiltered)
-
+    this.uppy.log("filesToEmit: ", "warning")
+    this.uppy.log(filesToEmit, "warning")
     this.uppy.emit('upload-start', filesToEmit)
 
     const promises = filesFiltered.map((file) => {

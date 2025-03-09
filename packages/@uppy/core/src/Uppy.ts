@@ -2355,6 +2355,37 @@ export class Uppy<
     }
 
     let { files } = this.getState()
+
+    const filesToRetry = Object.keys(files).filter(
+      (fileID) => files[fileID].error,
+    )
+    const hasFilesToRetry = filesToRetry.length > 0
+
+    // If we have files to retry, behave like retryAll() and ignore any new files
+    if (hasFilesToRetry) {
+      const updatedFiles = { ...files }
+      filesToRetry.forEach((fileID) => {
+        updatedFiles[fileID] = {
+          ...updatedFiles[fileID],
+          isPaused: false,
+          error: null,
+        }
+      })
+
+      this.setState({
+        files: updatedFiles,
+        error: null,
+      })
+
+      this.emit('retry-all', Object.values(updatedFiles))
+
+      const uploadID = this.#createUpload(filesToRetry, {
+        forceAllowNewUpload: true, // create new upload even if allowNewUpload: false
+      })
+      return this.#runUpload(uploadID)
+    }
+
+    // If no files to retry, proceed with original upload() behavior for new files
     this.log('files in this.getState inside upload()', 'warning')
     this.log(files, 'warning')
 

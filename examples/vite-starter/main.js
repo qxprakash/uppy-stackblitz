@@ -1,12 +1,12 @@
 import Uppy from '@uppy/core';
 import Dashboard from '@uppy/dashboard';
 import XHRUpload from '@uppy/xhr-upload';
-
+import Tus from '@uppy/tus';
 import '@uppy/core/dist/style.css';
 import '@uppy/dashboard/dist/style.css';
 
-const XHR_ENDPOINT = 'example.com/i_dont_exist';
-
+// const XHR_ENDPOINT = 'example.com/i_dont_exist';
+const TUS_ENDPOINT = 'http://localhost:1080/files';
 const RESTORE = false;
 
 const uppyDashboard = new Uppy({ debug: true }).use(Dashboard, {
@@ -14,13 +14,18 @@ const uppyDashboard = new Uppy({ debug: true }).use(Dashboard, {
   target: '#app',
   showProgressDetails: true,
   proudlyDisplayPoweredByUppy: true,
+  fileManagerSelectionType: 'file',
+
 });
 
-uppyDashboard.use(XHRUpload, {
-  endpoint: XHR_ENDPOINT,
-  limit: 6,
-  bundle: true,
-});
+// uppyDashboard.use(XHRUpload, {
+//   endpoint: XHR_ENDPOINT,
+//   limit: 6,
+//   bundle: true,
+// });
+
+
+uppyDashboard.use(Tus, { endpoint: TUS_ENDPOINT })
 
 window.uppy = uppyDashboard;
 

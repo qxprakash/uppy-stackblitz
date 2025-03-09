@@ -3,11 +3,13 @@ import type { UppyFile } from './UppyFile.js'
 export function filterNonFailedFiles(
   files: UppyFile<any, any>[],
 ): UppyFile<any, any>[] {
-  console.log("hello from uppy fileFilters.ts <---->")
+  console.log("hello from uppy fileFilters.ts <----> asdfhj asdfkajsdf")
   const hasError = (file: UppyFile<any, any>): boolean =>
     'error' in file && !!file.error
 
-  return files.filter((file) => !hasError(file))
+  const filesSucess = files.filter((file) => !hasError(file))
+  console.log("files success: ", filesSucess)
+  return filesSucess
 }
 
 // Don't double-emit upload-started for Golden Retriever-restored files that were already started
