@@ -2657,4 +2657,82 @@ describe('src/Core', () => {
       expect(console.error.mock.calls.length).toBe(1)
     })
   })
+
+  describe('upload events', () => {
+    it('should include response object in upload-error event', () => {
+      const core = new Core()
+      const errorEventMock = vi.fn()
+
+      core.on('upload-error', errorEventMock)
+
+      const testFile = {
+        source: 'vi',
+        name: 'test.jpg',
+        type: 'image/jpeg',
+        data: testImage
+      }
+
+      const fileID = core.addFile(testFile)
+      const file = core.getFile(fileID)
+
+      const testError = new Error('Upload failed')
+      const expectedResponse = {
+        status: 500,
+        body: {
+          message: 'Unknown error',
+          code: 500
+        },
+        bytesUploaded: 0
+      }
+
+      core.emit('upload-error', file, testError, expectedResponse)
+
+      // Verify error event was called with correct arguments
+      expect(errorEventMock).toHaveBeenCalledWith(
+        file,
+        testError,
+        expectedResponse
+      )
+
+      // Verify each property of the response object
+      const receivedResponse = errorEventMock.mock.calls[0][2]
+      expect(receivedResponse).toMatchObject({
+        status: 500,
+        body: {
+          message: 'Unknown error',
+          code: 500
+        },
+        bytesUploaded: 0
+      })
+    })
+
+    it('should handle upload-error event with missing response object', () => {
+      const core = new Core()
+      const errorEventMock = vi.fn()
+
+      core.on('upload-error', errorEventMock)
+
+      const testFile = {
+        source: 'vi',
+        name: 'test.jpg',
+        type: 'image/jpeg',
+        data: testImage
+      }
+
+      const fileID = core.addFile(testFile)
+      const file = core.getFile(fileID)
+
+      const testError = new Error('Upload failed')
+
+      // Emit without response object
+      core.emit('upload-error', file, testError)
+
+      // Verify error event was still called
+      expect(errorEventMock).toHaveBeenCalledWith(
+        file,
+        testError,
+        undefined // Response should be undefined when not provided
+      )
+    })
+  })
 })

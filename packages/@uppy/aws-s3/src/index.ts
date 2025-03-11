@@ -871,16 +871,17 @@ export default class AwsS3Multipart<
       const onError = (err: unknown) => {
         console.log(err as Error)
 
-      // Create a properly typed error response
+        // console.log("error name , message , stack --> ", (err as Error).name, (err as Error).message, (err as Error).stack)
+        console.log("file upload bytes uploaded -->", file?.progress?.bytesUploaded)
+        // console.log("error name", err as)
+        // Create a properly typed error response
+
       const errorResponse: UppyFile<M, B>['response'] = {
-        status: (err as any)?.source?.status || 500,
-        // Create error body with proper type casting
+        status: (err as any)?.status || 500,
         body: {
           message: err instanceof Error ? err.message : 'Unknown error',
-          code: (err as any)?.source?.status || 500,
-          details: (err as any)?.details || '',
-        } as unknown as B, // Safe type casting through unknown
-        bytesUploaded: (err as any)?.bytesUploaded || 0
+        } as unknown as B,
+        bytesUploaded: file?.progress?.bytesUploaded || 0
       }
 
       // Log formatted error response for debugging
@@ -1002,6 +1003,7 @@ export default class AwsS3Multipart<
 
     const promises = filesFiltered.map((file) => {
       if (file.isRemote) {
+        console.log("file is remote: ")
         const getQueue = () => this.requests
         this.#setResumableUploadsCapability(false)
         const controller = new AbortController()
@@ -1027,7 +1029,7 @@ export default class AwsS3Multipart<
 
         return uploadPromise
       }
-
+      console.log("file is not remote: ")
       return this.#uploadLocalFile(file)
     })
 
